@@ -2,13 +2,31 @@
 // Created by vadim on 01.01.2018.
 //
 
-#include <stdint-gcc.h>
 #include "string_parser.h"
 
 
-void parse_string(char * query){
-    if(!(query-strstr(query,"CREATE TABLE"))){
-        create_table(query+strlen("CREATE TABLE "));
+void parse_string(char *query){
+    char temp_query[strlen(query)];
+    strcpy(temp_query,query);
+    size_t i =0;
+    while (temp_query[i]){
+        if(islower(temp_query[i])){
+            temp_query[i] = (char) toupper(temp_query[i]);
+        }
+
+        i++;
+    }
+    if(!(temp_query-strstr(temp_query,"CREATE TABLE"))){
+        create_table(temp_query+strlen("CREATE TABLE "));
+    }
+
+    if(!(temp_query-strstr(temp_query,"CREATE DATABASE"))){
+        if (!(temp_query-strstr(temp_query,"CREATE DATABASE IF NOT EXIST"))){
+            create_database(temp_query+strlen("CREATE DATABASE IF NOT EXIST "));
+        }else{
+            create_database(temp_query+strlen("CREATE DATABASE "));
+        }
+
     }
 
 }

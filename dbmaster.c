@@ -92,9 +92,61 @@ int create_database(char *string) {
     db_init temp_db_init;
     strcpy(temp_db_init.database_name,database_name);
     strcpy(temp_db_init.path_control_file,control_fn);
+
+    save_init(INIT_FILE,&temp_db_init);
+    load_init(INIT_FILE,&temp_db_init);
 }
 
 
+int save_init(char *filename, struct db_init *db_init) {
+    FILE *init_file;
+    char *c;
+    int size = sizeof(struct db_init);
+    init_file = fopen(INIT_FILE, "wb");
+
+    if (!init_file) {
+        mkdir("db");
+        mkdir("./db/control");
+        mkdir("./db/bin");
+        if (!(init_file = fopen(INIT_FILE, "wb+")))
+            exit(1);
+
+    }
+
+    c = (char *) db_init;
+    for (int i = 0; i < size; i++) {
+        putc(*c++, init_file);
+    }
+    fclose(init_file);
+    printf("Saved name:%-30s path:%s \n", db_init->database_name, db_init->path_control_file);
+    return 0;
+}
+
+int load_init(char *filename, struct db_init *db_init) {
+    FILE * fp;
+    char *c;
+    int i;
+    size_t size = sizeof(struct db_init);
+    struct db_init * ptr = (struct db_init *) malloc(size);
+
+    if ((fp = fopen(filename, "rb")) == NULL)
+    {
+        perror("Error occured while opening file");
+        return 1;
+    }
+
+    c = (char *)ptr;
+    while ((i = getc(fp))!=EOF)
+    {
+        *c = (char) i;
+        c++;
+    }
+
+    fclose(fp);
+    printf("Loaded: %-30s %s \n", ptr->database_name, ptr->path_control_file);
+    free(ptr);
+    return 0;
+}
 
 
 

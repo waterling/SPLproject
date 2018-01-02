@@ -62,9 +62,9 @@ int create_table(char *string) {
         printf("Type: %s\n", column_info[k][1]);
         printf("NOtNull: %s\n", column_info[k][2]);
     }
-
-
-    return 1;
+    db_init db_init;
+    load_init(INIT_FILE,&db_init);
+    return 0;
 }
 
 int without_quotes(char* result, char* string){
@@ -92,11 +92,12 @@ int create_database(char *string) {
     db_init temp_db_init;
     strcpy(temp_db_init.database_name,database_name);
     strcpy(temp_db_init.path_control_file,control_fn);
-
-    save_init(INIT_FILE,&temp_db_init);
-    load_init(INIT_FILE,&temp_db_init);
+    if ((load_init(INIT_FILE,&temp_db_init))){
+        return 1;
+    }else{
+        save_init(INIT_FILE,&temp_db_init);
+    }
 }
-
 
 int save_init(char *filename, struct db_init *db_init) {
     FILE *init_file;
@@ -109,7 +110,7 @@ int save_init(char *filename, struct db_init *db_init) {
         mkdir("./db/control");
         mkdir("./db/bin");
         if (!(init_file = fopen(INIT_FILE, "wb+")))
-            exit(1);
+            return (1);
 
     }
 
@@ -131,7 +132,6 @@ int load_init(char *filename, struct db_init *db_init) {
 
     if ((fp = fopen(filename, "rb")) == NULL)
     {
-        perror("Error occured while opening file");
         return 1;
     }
 
@@ -147,8 +147,3 @@ int load_init(char *filename, struct db_init *db_init) {
     free(ptr);
     return 0;
 }
-
-
-
-
-

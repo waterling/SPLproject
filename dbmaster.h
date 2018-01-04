@@ -71,3 +71,7 @@ int load_control_body(char *filename, struct db_tables_names *tables_names);
 int load_init(char *filename, struct db_init *db_init);
 
 int load_control_header(char *filename, struct db_control *db_control);
+
+int save_control_header(char *filename, struct db_control *db_control);
+
+int add_table_in_control_file(struct db_control *db_control, struct db_tables_names *tables_names, char* table_name);

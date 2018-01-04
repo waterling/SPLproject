@@ -62,14 +62,21 @@ int create_table(char *string) {
         printf("Type: %s\n", column_info[k][1]);
         printf("NOtNull: %s\n", column_info[k][2]);
     }
+
     db_init *db_init = (struct db_init *) malloc(sizeof(struct db_init));
     load_init(INIT_FILE, db_init);
+
     db_control *db_control = (struct db_control *) malloc(sizeof(struct db_control));
     load_control_header(CONTROL_FILE, db_control);
+
     db_tables_names tables;
     tables.table_counter = db_control->table_counter;
     tables.tables = (struct db_table_info_t *) malloc(sizeof(struct db_table_info_t) * (tables.table_counter + 1));
+
     load_control_body(CONTROL_FILE, &tables);
+
+    add_table_in_control_file(db_control,&tables,table_name);
+
     save_control_body(CONTROL_FILE, &tables);
 
 
@@ -239,5 +246,18 @@ int load_control_body(char *filename, struct db_tables_names *tables_names) {
         printf("#%d: %s\n", j, (tables_names->tables + 1)->table_name);
     }
 
+    return 0;
+}
+
+int add_table_in_control_file(struct db_control *db_control, struct db_tables_names *tables_names, char* table_name){
+    size_t count = tables_names->table_counter;
+    for (int i = 0; i < count; ++i) {
+        if (!strcmp((tables_names->tables+i)->table_name,table_name)){
+            return 1;
+        }
+    }
+    printf("ADD TABLE NAME: %s",strcpy((tables_names->tables+count)->table_name,table_name));
+    db_control->table_counter+=1;
+    tables_names->table_counter+=1;
     return 0;
 }

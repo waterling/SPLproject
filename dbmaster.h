@@ -41,8 +41,8 @@ typedef struct db_table_info_t {
 
 typedef struct db_control {
     char database_name[DB_NAME_LIMIT];
+    size_t table_counter;
 //    char* tables_path;
-    db_table_info_t *tables_names;
 } db_control;
 
 typedef struct db_init {

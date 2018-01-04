@@ -13,6 +13,7 @@
 #define DB_NAME_LIMIT 30
 #define DB_TYPE_LIMIT 10
 #define DB_CONNECTION_LIMIT 60
+#define CONTROL_HEADER 34
 
 #pragma pack(push, 1)
 
@@ -60,5 +61,4 @@ int save_init(char *filename, struct db_init *db_init);
 
 int load_init(char *filename, struct db_init *db_init);
 
-
-
+int load_control_header(char *filename, struct db_control *db_control);

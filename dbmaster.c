@@ -64,6 +64,8 @@ int create_table(char *string) {
     }
     db_init db_init;
     load_init(INIT_FILE, &db_init);
+    db_control db_control;
+    load_control_header(CONTROL_FILE, &db_control);
     return 0;
 }
 
@@ -82,12 +84,10 @@ int create_database(char *string) {
     database_name[database_name_length] = 0;
     printf("Database name: %s \n", database_name);
 
-
-//    char control_fn[database_name_length + strlen(CONTROL_PATH) + strlen(DATABASE_FILE_EXTENSION)];
-//    strcpy(control_fn, CONTROL_PATH);
-//    strcat(control_fn, database_name);
-//    strcat(control_fn, DATABASE_FILE_EXTENSION);
-
+    /* char control_fn[database_name_length + strlen(CONTROL_PATH) + strlen(DATABASE_FILE_EXTENSION)];
+     strcpy(control_fn, CONTROL_PATH);
+     strcat(control_fn, database_name);
+     strcat(control_fn, DATABASE_FILE_EXTENSION);*/
 
     db_init temp_db_init;
     strcpy(temp_db_init.database_name, database_name);
@@ -163,7 +163,30 @@ int load_init(char *filename, struct db_init *db_init) {
     }
 
     fclose(fp);
-    printf("Loaded: %-30s\n", ptr->database_name);
+    printf("Loaded INIT: %-30s\n", ptr->database_name);
+    free(ptr);
+    return 0;
+}
+
+int load_control_header(char *filename, struct db_control *db_control) {
+    FILE *fp;
+    char *c;
+    int i;
+    size_t size = sizeof(struct db_control);
+    struct db_control *ptr = (struct db_control *) malloc(size);
+
+    if ((fp = fopen(filename, "rb")) == NULL) {
+        return 1;
+    }
+
+    c = (char *) ptr;
+    while ((i = getc(fp)) != EOF) {
+        *c = (char) i;
+        c++;
+    }
+
+    fclose(fp);
+    printf("Loaded CONTROL: %-30s counter:%d\n", ptr->database_name, ptr->table_counter);
     free(ptr);
     return 0;
 }

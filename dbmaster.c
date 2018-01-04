@@ -75,8 +75,9 @@ int create_table(char *string) {
 
     load_control_body(CONTROL_FILE, &tables);
 
-    add_table_in_control_file(db_control,&tables,table_name);
+    add_table_in_control_file(db_control, &tables, table_name);
 
+    save_control_header(CONTROL_FILE, db_control);
     save_control_body(CONTROL_FILE, &tables);
 
 
@@ -224,6 +225,24 @@ int load_control_header(char *filename, struct db_control *db_control) {
     return 0;
 }
 
+int save_control_header(char *filename, struct db_control *db_control) {
+    FILE *control_file;
+    char *c;
+    int size = sizeof(struct db_control);
+    control_file = fopen(CONTROL_FILE, "wb");
+    if (!control_file) {
+        return 1;
+    }
+
+    c = (char *) db_control;
+    for (int i = 0; i < size; i++) {
+        putc(*c++, control_file);
+    }
+    fclose(control_file);
+    printf("Saved CONTROL HEADER name:%-30s counter: %d\n", db_control->database_name, db_control->table_counter);
+    return 0;
+}
+
 int load_control_body(char *filename, struct db_tables_names *tables_names) {
     FILE *fp;
     char *c;
@@ -249,15 +268,15 @@ int load_control_body(char *filename, struct db_tables_names *tables_names) {
     return 0;
 }
 
-int add_table_in_control_file(struct db_control *db_control, struct db_tables_names *tables_names, char* table_name){
+int add_table_in_control_file(struct db_control *db_control, struct db_tables_names *tables_names, char *table_name) {
     size_t count = tables_names->table_counter;
     for (int i = 0; i < count; ++i) {
-        if (!strcmp((tables_names->tables+i)->table_name,table_name)){
+        if (!strcmp((tables_names->tables + i)->table_name, table_name)) {
             return 1;
         }
     }
-    printf("ADD TABLE NAME: %s",strcpy((tables_names->tables+count)->table_name,table_name));
-    db_control->table_counter+=1;
-    tables_names->table_counter+=1;
+    printf("ADD TABLE NAME: %s\n", strcpy((tables_names->tables + count)->table_name, table_name));
+    db_control->table_counter += 1;
+    tables_names->table_counter += 1;
     return 0;
 }

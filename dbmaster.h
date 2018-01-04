@@ -40,6 +40,11 @@ typedef struct db_table_info_t {
     char table_name[DB_NAME_LIMIT];
 } db_table_info_t;
 
+typedef struct db_tables_names {
+    size_t table_counter;
+    db_table_info_t *tables;
+} db_tables_names;
+
 typedef struct db_control {
     char database_name[DB_NAME_LIMIT];
     size_t table_counter;
@@ -58,6 +63,10 @@ int create_table(char *string);
 int create_database(char *string);
 
 int save_init(char *filename, struct db_init *db_init);
+
+int save_control_body(char *filename, struct db_tables_names *tables_names);
+
+int load_control_body(char *filename, struct db_tables_names *tables_names);
 
 int load_init(char *filename, struct db_init *db_init);
 

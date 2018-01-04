@@ -62,10 +62,22 @@ int create_table(char *string) {
         printf("Type: %s\n", column_info[k][1]);
         printf("NOtNull: %s\n", column_info[k][2]);
     }
-    db_init db_init;
-    load_init(INIT_FILE, &db_init);
-    db_control db_control;
-    load_control_header(CONTROL_FILE, &db_control);
+    db_init *db_init = (struct db_init *) malloc(sizeof(struct db_init));
+    load_init(INIT_FILE, db_init);
+    db_control *db_control = (struct db_control *) malloc(sizeof(struct db_control));
+    load_control_header(CONTROL_FILE, db_control);
+    db_tables_names tables;
+    tables.table_counter = db_control->table_counter;
+    tables.tables = (struct db_table_info_t *) malloc(sizeof(struct db_table_info_t)*(tables.table_counter+1));
+    load_control_body(CONTROL_FILE,&tables);
+
+
+
+
+
+    free(db_init);
+    free(db_control);
+    free(&tables);
     return 0;
 }
 
@@ -145,26 +157,24 @@ int save_init(char *filename, struct db_init *db_init) {
     return 0;
 }
 
+
 int load_init(char *filename, struct db_init *db_init) {
     FILE *fp;
     char *c;
     int i;
-    size_t size = sizeof(struct db_init);
-    struct db_init *ptr = (struct db_init *) malloc(size);
 
     if ((fp = fopen(filename, "rb")) == NULL) {
         return 1;
     }
 
-    c = (char *) ptr;
+    c = (char *) db_init;
     while ((i = getc(fp)) != EOF) {
         *c = (char) i;
         c++;
     }
 
     fclose(fp);
-    printf("Loaded INIT: %-30s\n", ptr->database_name);
-    free(ptr);
+    printf("Loaded INIT: %-30s\n", db_init->database_name);
     return 0;
 }
 
@@ -172,21 +182,43 @@ int load_control_header(char *filename, struct db_control *db_control) {
     FILE *fp;
     char *c;
     int i;
-    size_t size = sizeof(struct db_control);
-    struct db_control *ptr = (struct db_control *) malloc(size);
 
     if ((fp = fopen(filename, "rb")) == NULL) {
         return 1;
     }
 
-    c = (char *) ptr;
+    c = (char *) db_control;
     while ((i = getc(fp)) != EOF) {
         *c = (char) i;
         c++;
     }
 
     fclose(fp);
-    printf("Loaded CONTROL: %-30s counter:%d\n", ptr->database_name, ptr->table_counter);
-    free(ptr);
+    printf("Loaded CONTROL HEAD: %-30s counter:%d\n", db_control->database_name, db_control->table_counter);
+    return 0;
+}
+
+int load_control_body(char *filename, struct db_tables_names *tables_names) {
+    FILE *fp;
+    char *c;
+    int i;
+
+    if ((fp = fopen(filename, "rb")) == NULL) {
+        return 1;
+    }
+    fseek(fp, sizeof(struct db_table_info_t)*(tables_names->table_counter),SEEK_SET);
+    c = (char *) tables_names->tables;
+    while ((i = getc(fp)) != EOF) {
+        *c = (char) i;
+        c++;
+    }
+
+    fclose(fp);
+    printf("Loaded CONTROL BODY counter:%d\n", tables_names->table_counter);
+
+    for (int j = 0; j < tables_names->table_counter; ++j) {
+        printf("#%d: %s\n", j, (tables_names->tables+1)->table_name);
+    }
+
     return 0;
 }

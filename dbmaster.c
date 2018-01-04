@@ -63,39 +63,38 @@ int create_table(char *string) {
         printf("NOtNull: %s\n", column_info[k][2]);
     }
     db_init db_init;
-    load_init(INIT_FILE,&db_init);
+    load_init(INIT_FILE, &db_init);
     return 0;
 }
 
-int without_quotes(char* result, char* string){
-    strncpy(result,string-1,strlen(string)-2);
-    printf("\n%s\n",result);
+int without_quotes(char *result, char *string) {
+    strncpy(result, string - 1, strlen(string) - 2);
+    printf("\n%s\n", result);
     return 0;
 }
 
 int create_database(char *string) {
-    uint32_t database_name_length = strstr(strstr(string, "\"")+1, "\"") - strstr(string, "\"")-1;
+    uint32_t database_name_length = strstr(strstr(string, "\"") + 1, "\"") - strstr(string, "\"") - 1;
     printf("Database name size: %u \n", database_name_length);
 
     char database_name[database_name_length];
-    strncpy(database_name, strstr(string, "\"")+1, database_name_length);
+    strncpy(database_name, strstr(string, "\"") + 1, database_name_length);
     database_name[database_name_length] = 0;
     printf("Database name: %s \n", database_name);
 
 
-    char control_fn[database_name_length+strlen(CONTROL_PATH)+strlen(DATABASE_FILE_EXTENSION)];
-    strcpy(control_fn,CONTROL_PATH);
-    strcat(control_fn,database_name);
+    char control_fn[database_name_length + strlen(CONTROL_PATH) + strlen(DATABASE_FILE_EXTENSION)];
+    strcpy(control_fn, CONTROL_PATH);
+    strcat(control_fn, database_name);
     strcat(control_fn, DATABASE_FILE_EXTENSION);
 
 
     db_init temp_db_init;
-    strcpy(temp_db_init.database_name,database_name);
-    strcpy(temp_db_init.path_control_file,control_fn);
-    if ((load_init(INIT_FILE,&temp_db_init))){
+    strcpy(temp_db_init.database_name, database_name);
+    if ((load_init(INIT_FILE, &temp_db_init))) {
         return 1;
-    }else{
-        save_init(INIT_FILE,&temp_db_init);
+    } else {
+        save_init(INIT_FILE, &temp_db_init);
     }
 }
 
@@ -119,31 +118,29 @@ int save_init(char *filename, struct db_init *db_init) {
         putc(*c++, init_file);
     }
     fclose(init_file);
-    printf("Saved name:%-30s path:%s \n", db_init->database_name, db_init->path_control_file);
+    printf("Saved name:%-30s\n", db_init->database_name);
     return 0;
 }
 
 int load_init(char *filename, struct db_init *db_init) {
-    FILE * fp;
+    FILE *fp;
     char *c;
     int i;
     size_t size = sizeof(struct db_init);
-    struct db_init * ptr = (struct db_init *) malloc(size);
+    struct db_init *ptr = (struct db_init *) malloc(size);
 
-    if ((fp = fopen(filename, "rb")) == NULL)
-    {
+    if ((fp = fopen(filename, "rb")) == NULL) {
         return 1;
     }
 
-    c = (char *)ptr;
-    while ((i = getc(fp))!=EOF)
-    {
+    c = (char *) ptr;
+    while ((i = getc(fp)) != EOF) {
         *c = (char) i;
         c++;
     }
 
     fclose(fp);
-    printf("Loaded: %-30s %s \n", ptr->database_name, ptr->path_control_file);
+    printf("Loaded: %-30s\n", ptr->database_name);
     free(ptr);
     return 0;
 }

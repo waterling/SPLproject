@@ -14,36 +14,43 @@
 #define DB_TYPE_LIMIT 10
 #define DB_CONNECTION_LIMIT 60
 
-typedef struct db_init {
-    char database_name[DB_NAME_LIMIT];
-    char path_control_file[PATH_LIMIT];
-} db_init;
+#pragma pack(push, 1)
 
 typedef struct db_block_t {
     size_t capacity;
     uint8_t isfree;
-}db_block_t;
+} db_block_t;
 
 typedef struct db_column_t {
     char column_name[DB_NAME_LIMIT];
     char column_type[DB_TYPE_LIMIT];
-    char connection[DB_CONNECTION_LIMIT];
+//    char connection[DB_CONNECTION_LIMIT];
     uint8_t not_null;
     uint8_t unique;
-}db_column_t;
+} db_column_t;
 
 typedef struct db_table_t {
     char table_name[DB_NAME_LIMIT];
     uint32_t column_counter;
-
     db_column_t *columns;
+} db_table_t;
 
-}db_table_t;
+typedef struct db_table_info_t {
+    char table_name[DB_NAME_LIMIT];
+} db_table_info_t;
+
 typedef struct db_control {
     char database_name[DB_NAME_LIMIT];
-    uint32_t table_counter;
-    db_table_t *tables;
+//    char* tables_path;
+    db_table_info_t *tables_names;
 } db_control;
+
+typedef struct db_init {
+    char database_name[DB_NAME_LIMIT];
+//    char path_control_file[PATH_LIMIT];
+} db_init;
+
+#pragma pack(pop)
 
 int create_table(char *string);
 

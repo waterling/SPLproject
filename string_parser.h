@@ -9,4 +9,4 @@
 
 void parse_string(char *temp_query);
 
-char* read_string(size_t size);
+char *read_string(size_t size);

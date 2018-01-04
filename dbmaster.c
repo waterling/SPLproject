@@ -68,16 +68,14 @@ int create_table(char *string) {
     load_control_header(CONTROL_FILE, db_control);
     db_tables_names tables;
     tables.table_counter = db_control->table_counter;
-    tables.tables = (struct db_table_info_t *) malloc(sizeof(struct db_table_info_t)*(tables.table_counter+1));
-    load_control_body(CONTROL_FILE,&tables);
-
-
-
+    tables.tables = (struct db_table_info_t *) malloc(sizeof(struct db_table_info_t) * (tables.table_counter + 1));
+    load_control_body(CONTROL_FILE, &tables);
+    save_control_body(CONTROL_FILE, &tables);
 
 
     free(db_init);
     free(db_control);
-    free(&tables);
+    free(tables.tables);
     return 0;
 }
 
@@ -157,6 +155,27 @@ int save_init(char *filename, struct db_init *db_init) {
     return 0;
 }
 
+int save_control_body(char *filename, struct db_tables_names *tables_names) {
+    FILE *control_file;
+    char *c;
+    int size = sizeof(struct db_table_info_t) * tables_names->table_counter;
+    control_file = fopen(filename, "ab");
+    if (control_file) {
+        c = (char *) tables_names->tables;
+        for (int i = 0; i < size; i++) {
+            putc(*c++, control_file);
+        }
+        fclose(control_file);
+        printf("Saved CONTROL BODY counter:%d\n", tables_names->table_counter);
+
+        for (int j = 0; j < tables_names->table_counter; ++j) {
+            printf("#%d: %s\n", j, (tables_names->tables + 1)->table_name);
+        }
+
+        return 0;
+    }
+    return 1;
+}
 
 int load_init(char *filename, struct db_init *db_init) {
     FILE *fp;
@@ -206,7 +225,7 @@ int load_control_body(char *filename, struct db_tables_names *tables_names) {
     if ((fp = fopen(filename, "rb")) == NULL) {
         return 1;
     }
-    fseek(fp, sizeof(struct db_table_info_t)*(tables_names->table_counter),SEEK_SET);
+    fseek(fp, sizeof(struct db_control), SEEK_SET);
     c = (char *) tables_names->tables;
     while ((i = getc(fp)) != EOF) {
         *c = (char) i;
@@ -217,7 +236,7 @@ int load_control_body(char *filename, struct db_tables_names *tables_names) {
     printf("Loaded CONTROL BODY counter:%d\n", tables_names->table_counter);
 
     for (int j = 0; j < tables_names->table_counter; ++j) {
-        printf("#%d: %s\n", j, (tables_names->tables+1)->table_name);
+        printf("#%d: %s\n", j, (tables_names->tables + 1)->table_name);
     }
 
     return 0;
